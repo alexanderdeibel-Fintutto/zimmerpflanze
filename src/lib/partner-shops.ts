@@ -40,53 +40,11 @@ export const PARTNER_SHOPS: PartnerShop[] = [
 
 export function generateSearchUrl(shop: PartnerShop, query: string): string {
   const encodedQuery = encodeURIComponent(query);
-  const baseUrl = `${shop.base_url}${encodedQuery}`;
-  // Add affiliate tag to URL
-  if (shop.id === 'amazon') {
-    return `${baseUrl}&tag=${shop.affiliate_tag}`;
-  }
-  const separator = baseUrl.includes('?') ? '&' : '?';
-  return `${baseUrl}${separator}ref=${shop.affiliate_tag}`;
+  return `${shop.base_url}${encodedQuery}`;
 }
 
 export function getShopById(id: string): PartnerShop | undefined {
   return PARTNER_SHOPS.find(s => s.id === id);
-}
-
-// Track affiliate click for analytics
-const CLICKS_KEY = 'pm_affiliate_clicks';
-
-interface AffiliateClick {
-  shopId: string;
-  query: string;
-  timestamp: string;
-}
-
-export function trackAffiliateClick(shopId: string, query: string) {
-  try {
-    const stored = localStorage.getItem(CLICKS_KEY);
-    const clicks: AffiliateClick[] = stored ? JSON.parse(stored) : [];
-    clicks.push({ shopId, query, timestamp: new Date().toISOString() });
-    // Keep last 500 clicks
-    const trimmed = clicks.slice(-500);
-    localStorage.setItem(CLICKS_KEY, JSON.stringify(trimmed));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-export function getAffiliateStats(): { totalClicks: number; byShop: Record<string, number> } {
-  try {
-    const stored = localStorage.getItem(CLICKS_KEY);
-    const clicks: AffiliateClick[] = stored ? JSON.parse(stored) : [];
-    const byShop: Record<string, number> = {};
-    clicks.forEach(c => {
-      byShop[c.shopId] = (byShop[c.shopId] || 0) + 1;
-    });
-    return { totalClicks: clicks.length, byShop };
-  } catch {
-    return { totalClicks: 0, byShop: {} };
-  }
 }
 
 export const MATERIAL_SUGGESTIONS: Record<string, string[]> = {
@@ -98,31 +56,31 @@ export const MATERIAL_SUGGESTIONS: Record<string, string[]> = {
     'Palmenerde',
   ],
   fertilizer: [
-    'Fluessigduenger Universal',
-    'Orchideenduenger',
-    'Kakteenduenger',
-    'Langzeitduenger Staebchen',
-    'Gruenpflanzenduenger',
+    'Flüssigdünger Universal',
+    'Orchideendünger',
+    'Kakteendünger',
+    'Langzeitdünger Stäbchen',
+    'Grünpflanzendünger',
   ],
   pot: [
-    'Uebertopf Keramik',
+    'Übertopf Keramik',
     'Pflanztopf mit Untersetzer',
-    'Haengeampel',
+    'Hängeampel',
     'Blumenkasten',
-    'Selbstbewaesserungstopf',
+    'Selbstbewässerungstopf',
   ],
   tool: [
-    'Giesskanne',
-    'Spruehflasche',
+    'Gießkanne',
+    'Sprühflasche',
     'Pflanzenschere',
     'Feuchtigkeitsmesser',
     'Rankhilfe',
   ],
   pesticide: [
-    'Neemoel Spray',
-    'Schaedlingsfrei biologisch',
+    'Neemöl Spray',
+    'Schädlingsfrei biologisch',
     'Gelbtafeln',
-    'Trauermuecken-Fallen',
+    'Trauermücken-Fallen',
     'Blattlaus-Spray',
   ],
   other: [
@@ -130,6 +88,6 @@ export const MATERIAL_SUGGESTIONS: Record<string, string[]> = {
     'Pflanzen-Untersetzer',
     'Kokosfaser Stab',
     'Hydrokultur Granulat',
-    'Drainage Blaehton',
+    'Drainage Blähton',
   ],
 };
