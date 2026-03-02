@@ -19,6 +19,8 @@ import PlantDetail from '@/pages/plants/PlantDetail';
 import ApartmentsPage from '@/pages/apartments/ApartmentsPage';
 import CarePlanPage from '@/pages/care/CarePlanPage';
 import CalendarPage from '@/pages/care/CalendarPage';
+import BatchCarePage from '@/pages/care/BatchCarePage';
+import StatisticsPage from '@/pages/statistics/StatisticsPage';
 import VacationPlanPage from '@/pages/vacation/VacationPlanPage';
 import ShoppingPage from '@/pages/shopping/ShoppingPage';
 import SettingsPage from '@/pages/SettingsPage';
@@ -48,7 +50,9 @@ function App() {
                   <Route path="/catalog/:speciesId" element={<PlantCatalogDetail />} />
                   <Route path="/apartments" element={<ApartmentsPage />} />
                   <Route path="/care" element={<CarePlanPage />} />
+                  <Route path="/batch-care" element={<BatchCarePage />} />
                   <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/statistics" element={<StatisticsPage />} />
                   <Route path="/vacation" element={<VacationPlanPage />} />
                   <Route path="/shopping" element={<ShoppingPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
