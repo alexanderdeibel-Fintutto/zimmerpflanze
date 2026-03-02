@@ -23,6 +23,7 @@ import BatchCarePage from '@/pages/care/BatchCarePage';
 import StatisticsPage from '@/pages/statistics/StatisticsPage';
 import VacationPlanPage from '@/pages/vacation/VacationPlanPage';
 import ShoppingPage from '@/pages/shopping/ShoppingPage';
+import PlantScannerPage from '@/pages/scanner/PlantScannerPage';
 import SettingsPage from '@/pages/SettingsPage';
 import NotFound from '@/pages/NotFound';
 
@@ -52,6 +53,7 @@ function App() {
                   <Route path="/care" element={<CarePlanPage />} />
                   <Route path="/batch-care" element={<BatchCarePage />} />
                   <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/scanner" element={<PlantScannerPage />} />
                   <Route path="/statistics" element={<StatisticsPage />} />
                   <Route path="/vacation" element={<VacationPlanPage />} />
                   <Route path="/shopping" element={<ShoppingPage />} />
