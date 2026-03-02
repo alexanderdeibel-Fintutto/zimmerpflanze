@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { usePlants } from '@/hooks/usePlantContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useBrowserNotifications } from '@/hooks/useBrowserNotifications';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
   Settings,
   User,
   Bell,
+  BellRing,
   Clock,
   Download,
   Upload,
@@ -23,6 +26,7 @@ import {
   ExternalLink,
   Droplets,
   Sparkles,
+  Monitor,
 } from 'lucide-react';
 
 const STORAGE_KEYS = {
@@ -67,6 +71,12 @@ export default function SettingsPage() {
     vacationPlans,
     shoppingItems,
   } = usePlants();
+
+  const {
+    enabled: browserNotifEnabled,
+    permission: browserNotifPermission,
+    toggleEnabled: toggleBrowserNotif,
+  } = useBrowserNotifications();
 
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(loadNotificationPrefs);
   const [reminderTime, setReminderTime] = useState(loadReminderTime);
@@ -355,6 +365,61 @@ export default function SettingsPage() {
               className="w-32"
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Browser Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BellRing className="h-5 w-5" />
+            Browser-Benachrichtigungen
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                <Monitor className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
+              </div>
+              <div>
+                <Label htmlFor="browser-notif" className="font-medium cursor-pointer">
+                  Push-Benachrichtigungen
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Erhalte Browser-Benachrichtigungen bei ueberfaelligen Pflegeaufgaben
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {browserNotifPermission === 'denied' && (
+                <Badge variant="destructive" className="text-xs">Blockiert</Badge>
+              )}
+              {browserNotifPermission === 'unsupported' && (
+                <Badge variant="secondary" className="text-xs">Nicht verfuegbar</Badge>
+              )}
+              <Switch
+                id="browser-notif"
+                checked={browserNotifEnabled}
+                onCheckedChange={toggleBrowserNotif}
+                disabled={browserNotifPermission === 'denied' || browserNotifPermission === 'unsupported'}
+              />
+            </div>
+          </div>
+
+          {browserNotifPermission === 'denied' && (
+            <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 p-3 text-sm text-red-800 dark:text-red-200">
+              Browser-Benachrichtigungen wurden blockiert. Bitte erlaube Benachrichtigungen
+              in den Browser-Einstellungen fuer diese Seite.
+            </div>
+          )}
+
+          {browserNotifPermission === 'granted' && browserNotifEnabled && (
+            <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950 p-3 text-sm text-green-800 dark:text-green-200">
+              Browser-Benachrichtigungen sind aktiviert. Du erhaeltst taeglich
+              eine Erinnerung, wenn Pflegeaufgaben anstehen.
+            </div>
+          )}
         </CardContent>
       </Card>
 
