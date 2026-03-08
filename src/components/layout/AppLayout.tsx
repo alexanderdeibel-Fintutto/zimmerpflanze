@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { usePlants } from '@/hooks/usePlantContext';
 import { useBrowserNotifications } from '@/hooks/useBrowserNotifications';
@@ -7,6 +7,7 @@ import { useBrowserNotifications } from '@/hooks/useBrowserNotifications';
 export function AppLayout() {
   const { getOverdueReminders, getTodayReminders } = usePlants();
   const { notifyReminders, enabled } = useBrowserNotifications();
+  const location = useLocation();
 
   const overdueReminders = useMemo(() => getOverdueReminders(), [getOverdueReminders]);
   const todayReminders = useMemo(() => getTodayReminders(), [getTodayReminders]);
@@ -23,10 +24,13 @@ export function AppLayout() {
   }, [enabled, overdueReminders, todayReminders, notifyReminders]);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto">
-        <div className="container max-w-7xl py-6 px-4 lg:px-8">
+        <div
+          key={location.pathname}
+          className="container max-w-7xl py-6 px-4 lg:px-8 lg:py-8 animate-fade-in"
+        >
           <Outlet />
         </div>
       </main>
