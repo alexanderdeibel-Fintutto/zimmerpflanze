@@ -19,7 +19,6 @@ import {
   Download,
   Upload,
   Trash2,
-  Info,
   Leaf,
   Shield,
   Database,
@@ -83,7 +82,6 @@ export default function SettingsPage() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
 
-  // Persist notification prefs
   useEffect(() => {
     saveNotificationPrefs(notifPrefs);
   }, [notifPrefs]);
@@ -138,7 +136,6 @@ export default function SettingsPage() {
             return;
           }
 
-          // Import into localStorage
           if (data.apartments) localStorage.setItem('pm_apartments', JSON.stringify(data.apartments));
           if (data.rooms) localStorage.setItem('pm_rooms', JSON.stringify(data.rooms));
           if (data.plants) localStorage.setItem('pm_plants', JSON.stringify(data.plants));
@@ -172,7 +169,6 @@ export default function SettingsPage() {
       return;
     }
 
-    // Clear all app data from localStorage
     localStorage.removeItem('pm_apartments');
     localStorage.removeItem('pm_rooms');
     localStorage.removeItem('pm_plants');
@@ -193,43 +189,38 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10">
-          <Settings className="h-6 w-6 text-primary" />
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gray-100 to-slate-100 dark:from-gray-800 dark:to-slate-900 flex items-center justify-center">
+          <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Einstellungen</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Einstellungen</h1>
           <p className="text-muted-foreground text-sm">App-Konfiguration und Datenverwaltung</p>
         </div>
       </div>
 
       {/* App Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Info className="h-5 w-5" />
-            Über die App
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground">
-              <Leaf className="h-9 w-9" />
+      <Card className="overflow-hidden">
+        <div className="h-20 bg-gradient-to-r from-green-500 to-emerald-500 relative">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4xIi8+PC9zdmc+')] opacity-50" />
+        </div>
+        <CardContent className="pt-0">
+          <div className="flex items-end gap-4 -mt-8 mb-4">
+            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl shadow-green-500/30 border-4 border-card">
+              <Leaf className="h-8 w-8" />
             </div>
-            <div>
+            <div className="pb-1">
               <h3 className="text-xl font-bold">Pflanzen-Manager</h3>
-              <p className="text-muted-foreground">von Fintutto</p>
-              <p className="text-sm text-muted-foreground mt-1">Version 1.0.0</p>
+              <p className="text-sm text-muted-foreground">von Fintutto &middot; Version 1.0.0</p>
             </div>
           </div>
-          <Separator className="my-4" />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Der Pflanzen-Manager hilft dir, deine Zimmerpflanzen optimal zu pflegen.
             Verwalte Giesspläne, Urlaubsvertretungen und Einkaufslisten -- alles an einem Ort.
           </p>
           <div className="flex gap-2 mt-4">
             <Button variant="outline" size="sm" asChild>
               <a href="https://fintutto.com" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                 Fintutto.com
               </a>
             </Button>
@@ -239,9 +230,11 @@ export default function SettingsPage() {
 
       {/* User Profile */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-5 w-5" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/30 flex items-center justify-center">
+              <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
             Benutzerprofil
           </CardTitle>
         </CardHeader>
@@ -249,33 +242,33 @@ export default function SettingsPage() {
           {user ? (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-6 w-6 text-primary" />
+                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/20 flex items-center justify-center">
+                  <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="font-medium">{user.user_metadata?.name || 'Benutzer'}</p>
+                  <p className="font-semibold">{user.user_metadata?.name || 'Benutzer'}</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                <Shield className="h-3.5 w-3.5" />
                 <span>Angemeldet via Supabase</span>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-6 w-6 text-muted-foreground" />
+                <div className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center">
+                  <User className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="font-medium">Lokaler Benutzer</p>
+                  <p className="font-semibold">Lokaler Benutzer</p>
                   <p className="text-sm text-muted-foreground">
                     Daten werden lokal im Browser gespeichert
                   </p>
                 </div>
               </div>
-              <div className="rounded-lg border border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950 p-3 text-sm text-yellow-800 dark:text-yellow-200">
+              <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 dark:border-amber-900/40 dark:bg-amber-950/20 p-3 text-sm text-amber-800 dark:text-amber-200">
                 Deine Daten sind nur in diesem Browser verfügbar. Erstelle ein Konto, um deine
                 Daten geräteübergreifend zu synchronisieren.
               </div>
@@ -286,24 +279,26 @@ export default function SettingsPage() {
 
       {/* Notification Preferences */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Bell className="h-5 w-5" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/30 flex items-center justify-center">
+              <Bell className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
             Benachrichtigungen
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <Droplets className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+              <div className="h-9 w-9 rounded-lg bg-blue-100/80 dark:bg-blue-900/30 flex items-center justify-center">
+                <Droplets className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <Label htmlFor="water-reminders" className="font-medium cursor-pointer">
+                <Label htmlFor="water-reminders" className="font-medium cursor-pointer text-sm">
                   Giess-Erinnerungen
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Benachrichtigung, wenn Pflanzen gegossen werden müssen
+                <p className="text-xs text-muted-foreground">
+                  Benachrichtigung bei faelligen Giessaufgaben
                 </p>
               </div>
             </div>
@@ -320,15 +315,15 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-green-600 dark:text-green-300" />
+              <div className="h-9 w-9 rounded-lg bg-green-100/80 dark:bg-green-900/30 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <Label htmlFor="fertilize-reminders" className="font-medium cursor-pointer">
-                  Dünge-Erinnerungen
+                <Label htmlFor="fertilize-reminders" className="font-medium cursor-pointer text-sm">
+                  Duenge-Erinnerungen
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Benachrichtigung, wenn Pflanzen gedüngt werden müssen
+                <p className="text-xs text-muted-foreground">
+                  Benachrichtigung bei faelligen Duengeaufgaben
                 </p>
               </div>
             </div>
@@ -345,15 +340,15 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+              <div className="h-9 w-9 rounded-lg bg-orange-100/80 dark:bg-orange-900/30 flex items-center justify-center">
+                <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <Label htmlFor="reminder-time" className="font-medium cursor-pointer">
+                <Label htmlFor="reminder-time" className="font-medium cursor-pointer text-sm">
                   Standard-Erinnerungszeit
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Uhrzeit, zu der Erinnerungen angezeigt werden
+                <p className="text-xs text-muted-foreground">
+                  Uhrzeit fuer Erinnerungen
                 </p>
               </div>
             </div>
@@ -362,7 +357,7 @@ export default function SettingsPage() {
               type="time"
               value={reminderTime}
               onChange={(e) => setReminderTime(e.target.value)}
-              className="w-32"
+              className="w-28 text-center"
             />
           </div>
         </CardContent>
@@ -370,33 +365,35 @@ export default function SettingsPage() {
 
       {/* Browser Notifications */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <BellRing className="h-5 w-5" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/40 dark:to-violet-900/30 flex items-center justify-center">
+              <BellRing className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
             Browser-Benachrichtigungen
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
-                <Monitor className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
+              <div className="h-9 w-9 rounded-lg bg-indigo-100/80 dark:bg-indigo-900/30 flex items-center justify-center">
+                <Monitor className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div>
-                <Label htmlFor="browser-notif" className="font-medium cursor-pointer">
+                <Label htmlFor="browser-notif" className="font-medium cursor-pointer text-sm">
                   Push-Benachrichtigungen
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  Erhalte Browser-Benachrichtigungen bei ueberfaelligen Pflegeaufgaben
+                <p className="text-xs text-muted-foreground">
+                  Browser-Benachrichtigungen bei ueberfaelligen Aufgaben
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               {browserNotifPermission === 'denied' && (
-                <Badge variant="destructive" className="text-xs">Blockiert</Badge>
+                <Badge variant="destructive" className="text-[10px] h-5">Blockiert</Badge>
               )}
               {browserNotifPermission === 'unsupported' && (
-                <Badge variant="secondary" className="text-xs">Nicht verfuegbar</Badge>
+                <Badge variant="secondary" className="text-[10px] h-5">Nicht verfuegbar</Badge>
               )}
               <Switch
                 id="browser-notif"
@@ -408,14 +405,14 @@ export default function SettingsPage() {
           </div>
 
           {browserNotifPermission === 'denied' && (
-            <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 p-3 text-sm text-red-800 dark:text-red-200">
+            <div className="rounded-xl border border-red-200/60 bg-red-50/50 dark:border-red-900/40 dark:bg-red-950/20 p-3 text-sm text-red-800 dark:text-red-200">
               Browser-Benachrichtigungen wurden blockiert. Bitte erlaube Benachrichtigungen
               in den Browser-Einstellungen fuer diese Seite.
             </div>
           )}
 
           {browserNotifPermission === 'granted' && browserNotifEnabled && (
-            <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950 p-3 text-sm text-green-800 dark:text-green-200">
+            <div className="rounded-xl border border-green-200/60 bg-green-50/50 dark:border-green-900/40 dark:bg-green-950/20 p-3 text-sm text-green-800 dark:text-green-200">
               Browser-Benachrichtigungen sind aktiviert. Du erhaeltst taeglich
               eine Erinnerung, wenn Pflegeaufgaben anstehen.
             </div>
@@ -425,71 +422,90 @@ export default function SettingsPage() {
 
       {/* Data Management */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Database className="h-5 w-5" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900/40 dark:to-teal-900/30 flex items-center justify-center">
+              <Database className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            </div>
             Datenverwaltung
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Data overview */}
-          <div className="rounded-lg bg-muted p-4">
-            <p className="text-sm font-medium mb-2">Gespeicherte Daten:</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
-              <span>{apartments.length} Wohnungen</span>
-              <span>{rooms.length} Räume</span>
-              <span>{plants.length} Pflanzen</span>
-              <span>{careEvents.length} Pflege-Einträge</span>
-              <span>{vacationPlans.length} Urlaubspläne</span>
-              <span>{shoppingItems.length} Einkaufsartikel</span>
+          <div className="rounded-xl bg-muted/40 border p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">Gespeicherte Daten</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+              {[
+                { count: apartments.length, label: 'Wohnungen' },
+                { count: rooms.length, label: 'Raeume' },
+                { count: plants.length, label: 'Pflanzen' },
+                { count: careEvents.length, label: 'Pflege-Eintraege' },
+                { count: vacationPlans.length, label: 'Urlaubsplaene' },
+                { count: shoppingItems.length, label: 'Einkaufsartikel' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-1.5">
+                  <span className="font-semibold tabular-nums">{item.count}</span>
+                  <span className="text-muted-foreground text-xs">{item.label}</span>
+                </div>
+              ))}
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Insgesamt {totalDataItems} Einträge
+            <p className="text-[11px] text-muted-foreground mt-2.5 pt-2 border-t border-border/50">
+              Insgesamt {totalDataItems} Eintraege
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Export */}
-            <Button variant="outline" onClick={handleExportData} className="justify-start h-auto py-3">
-              <Download className="h-5 w-5 mr-3 flex-shrink-0" />
-              <div className="text-left">
-                <p className="font-medium">Daten exportieren</p>
-                <p className="text-xs text-muted-foreground font-normal">
+            <button
+              onClick={handleExportData}
+              className="flex items-center gap-3 rounded-xl border bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 hover:border-blue-300 dark:hover:border-blue-800 p-4 text-left transition-all hover:shadow-sm"
+            >
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Download className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Daten exportieren</p>
+                <p className="text-xs text-muted-foreground">
                   Als JSON-Datei herunterladen
                 </p>
               </div>
-            </Button>
+            </button>
 
-            {/* Import */}
-            <Button variant="outline" onClick={handleImportData} className="justify-start h-auto py-3">
-              <Upload className="h-5 w-5 mr-3 flex-shrink-0" />
-              <div className="text-left">
-                <p className="font-medium">Daten importieren</p>
-                <p className="text-xs text-muted-foreground font-normal">
+            <button
+              onClick={handleImportData}
+              className="flex items-center gap-3 rounded-xl border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 hover:border-green-300 dark:hover:border-green-800 p-4 text-left transition-all hover:shadow-sm"
+            >
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Upload className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Daten importieren</p>
+                <p className="text-xs text-muted-foreground">
                   Aus JSON-Datei wiederherstellen
                 </p>
               </div>
-            </Button>
+            </button>
           </div>
 
           <Separator />
 
           {/* Reset */}
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-destructive" />
-              <h4 className="font-semibold text-destructive">Alle Daten zurücksetzen</h4>
+          <div className="rounded-xl border border-red-200/60 bg-red-50/30 dark:border-red-900/40 dark:bg-red-950/10 p-4 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
+              <h4 className="font-semibold text-sm text-red-700 dark:text-red-400">Alle Daten zurücksetzen</h4>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Hiermit werden alle gespeicherten Daten unwiderruflich gelöscht. Erstelle vorher
               ein Backup über die Export-Funktion.
             </p>
 
             {showResetConfirm ? (
-              <div className="space-y-3">
+              <div className="space-y-3 pt-1">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-confirm" className="text-sm">
-                    Gib <span className="font-mono font-bold">LÖSCHEN</span> ein, um zu bestätigen:
+                  <Label htmlFor="reset-confirm" className="text-xs">
+                    Gib <span className="font-mono font-bold">LÖSCHEN</span> ein:
                   </Label>
                   <Input
                     id="reset-confirm"
@@ -506,7 +522,7 @@ export default function SettingsPage() {
                     onClick={handleResetData}
                     disabled={resetConfirmText !== 'LÖSCHEN'}
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                     Endgültig löschen
                   </Button>
                   <Button
@@ -526,9 +542,9 @@ export default function SettingsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowResetConfirm(true)}
-                className="border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                className="border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                 Daten zurücksetzen
               </Button>
             )}

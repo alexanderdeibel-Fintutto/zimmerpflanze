@@ -1,6 +1,7 @@
 import { PlantSpecies } from '@/types';
+import { EXTENDED_PLANT_SPECIES } from './plants-extended';
 
-export const PLANT_SPECIES: PlantSpecies[] = [
+const BASE_PLANT_SPECIES: PlantSpecies[] = [
   {
     id: 'plant-001',
     common_name: 'Monstera',
@@ -1251,6 +1252,11 @@ export const PLANT_SPECIES: PlantSpecies[] = [
     care_tips: ['Blütenstände sofort abknipsen', 'Viel Licht für intensive Farben', 'Stecklinge wurzeln in Wasser', 'Regelmäßig zurückschneiden für buschigen Wuchs'],
     tags: ['Blattschmuck', 'Anfänger', 'Farbenfroh', 'Schnellwüchsig'],
   },
+];
+
+export const PLANT_SPECIES: PlantSpecies[] = [
+  ...BASE_PLANT_SPECIES,
+  ...EXTENDED_PLANT_SPECIES,
 ];
 
 export function searchPlants(query: string): PlantSpecies[] {

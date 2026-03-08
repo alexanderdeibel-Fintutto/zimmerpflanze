@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Droplets,
   Leaf,
@@ -14,58 +13,62 @@ import {
   RotateCw,
   CheckCircle2,
   ListChecks,
-  Home,
   DoorOpen,
-  Filter,
   Sparkles,
   AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { UserPlant, CareEvent } from '@/types';
-import { parseISO, isBefore, isToday, addDays, format } from 'date-fns';
+import { parseISO, isBefore, isToday, format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 type CareType = CareEvent['type'];
 
 const careTypeConfig: Record<
   CareType,
-  { label: string; icon: typeof Droplets; color: string; bgColor: string }
+  { label: string; icon: typeof Droplets; color: string; bgColor: string; gradient: string }
 > = {
   water: {
     label: 'Giessen',
     icon: Droplets,
     color: 'text-blue-500',
     bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+    gradient: 'from-blue-500 to-cyan-500',
   },
   fertilize: {
     label: 'Duengen',
     icon: Leaf,
     color: 'text-green-500',
     bgColor: 'bg-green-100 dark:bg-green-900/30',
+    gradient: 'from-green-500 to-emerald-500',
   },
   repot: {
     label: 'Umtopfen',
     icon: FlowerIcon,
     color: 'text-amber-600',
     bgColor: 'bg-amber-100 dark:bg-amber-900/30',
+    gradient: 'from-amber-500 to-orange-500',
   },
   prune: {
     label: 'Schneiden',
     icon: Scissors,
     color: 'text-purple-500',
     bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+    gradient: 'from-purple-500 to-violet-500',
   },
   mist: {
     label: 'Besprühen',
     icon: Wind,
     color: 'text-cyan-500',
     bgColor: 'bg-cyan-100 dark:bg-cyan-900/30',
+    gradient: 'from-cyan-500 to-teal-500',
   },
   rotate: {
     label: 'Drehen',
     icon: RotateCw,
     color: 'text-pink-500',
     bgColor: 'bg-pink-100 dark:bg-pink-900/30',
+    gradient: 'from-pink-500 to-rose-500',
   },
 };
 
@@ -88,7 +91,6 @@ export default function BatchCarePage() {
   const enrichedPlants = useMemo(() => getEnrichedPlants(), [getEnrichedPlants]);
   const reminders = useMemo(() => getReminders(), [getReminders]);
 
-  // Get overdue plants for the selected care type
   const overduePlantIds = useMemo(() => {
     const now = new Date();
     return new Set(
@@ -101,7 +103,6 @@ export default function BatchCarePage() {
     );
   }, [reminders, careType]);
 
-  // Filter plants
   const filteredPlants = useMemo(() => {
     let result = enrichedPlants;
 
@@ -118,7 +119,6 @@ export default function BatchCarePage() {
     });
   }, [enrichedPlants, filterMode, filterRoom, overduePlantIds]);
 
-  // Group plants by room
   const plantsByRoom = useMemo(() => {
     const groups: Record<string, { roomName: string; apartmentName: string; plants: UserPlant[] }> = {};
 
@@ -238,12 +238,16 @@ export default function BatchCarePage() {
     [reminders, careType]
   );
 
+  const activeConfig = careTypeConfig[careType];
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ListChecks className="h-7 w-7 text-primary" />
+        <h1 className="text-2xl font-bold flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/40 dark:to-purple-900/30 flex items-center justify-center">
+            <ListChecks className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          </div>
           Batch-Pflege
         </h1>
         <p className="text-muted-foreground mt-1">
@@ -252,65 +256,66 @@ export default function BatchCarePage() {
       </div>
 
       {/* Care Type Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Pflege-Aktion waehlen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            {(Object.entries(careTypeConfig) as [CareType, typeof careTypeConfig.water][]).map(
-              ([type, config]) => {
-                const Icon = config.icon;
-                const isActive = careType === type;
-                return (
-                  <button
-                    key={type}
-                    onClick={() => {
-                      setCareType(type);
-                      setSelectedPlants(new Set());
-                    }}
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-3 transition-all ${
-                      isActive
-                        ? `border-primary bg-primary/5 ring-2 ring-primary/20`
-                        : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className={`h-9 w-9 rounded-full ${config.bgColor} flex items-center justify-center`}>
-                      <Icon className={`h-5 w-5 ${config.color}`} />
-                    </div>
-                    <span className="text-xs font-medium">{config.label}</span>
-                  </button>
-                );
-              }
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <div>
+        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Pflege-Aktion</p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {(Object.entries(careTypeConfig) as [CareType, typeof careTypeConfig.water][]).map(
+            ([type, config]) => {
+              const Icon = config.icon;
+              const isActive = careType === type;
+              return (
+                <button
+                  key={type}
+                  onClick={() => {
+                    setCareType(type);
+                    setSelectedPlants(new Set());
+                  }}
+                  className={`group flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${
+                    isActive
+                      ? 'border-transparent bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 ring-2 ring-primary/30 shadow-md'
+                      : 'border-border/60 hover:border-primary/20 hover:bg-muted/30 hover:shadow-sm'
+                  }`}
+                >
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                    isActive
+                      ? `bg-gradient-to-br ${config.gradient} shadow-sm`
+                      : config.bgColor
+                  }`}>
+                    <Icon className={`h-5 w-5 transition-colors ${isActive ? 'text-white' : config.color}`} />
+                  </div>
+                  <span className={`text-xs font-medium transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {config.label}
+                  </span>
+                </button>
+              );
+            }
+          )}
+        </div>
+      </div>
 
       {/* Filter & Selection Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            size="sm"
-            variant={filterMode === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilterMode('all')}
-          >
-            Alle
-          </Button>
-          <Button
-            size="sm"
-            variant={filterMode === 'overdue' ? 'default' : 'outline'}
-            onClick={() => setFilterMode('overdue')}
-            className="gap-1"
-          >
-            <AlertTriangle className="h-3.5 w-3.5" />
-            Nur Ueberfaellige
-            {overduePlantIds.size > 0 && (
-              <Badge variant="destructive" className="ml-1 h-4 px-1 text-[10px]">
-                {overduePlantIds.size}
-              </Badge>
-            )}
-          </Button>
+          {[
+            { mode: 'all' as FilterMode, label: 'Alle' },
+            { mode: 'overdue' as FilterMode, label: 'Ueberfaellige', count: overduePlantIds.size },
+          ].map(filter => (
+            <Button
+              key={filter.mode}
+              size="sm"
+              variant={filterMode === filter.mode ? 'default' : 'outline'}
+              onClick={() => setFilterMode(filter.mode)}
+              className={`gap-1.5 ${filterMode === filter.mode ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' : ''}`}
+            >
+              {filter.mode === 'overdue' && <AlertTriangle className="h-3.5 w-3.5" />}
+              {filter.label}
+              {filter.count != null && filter.count > 0 && (
+                <Badge variant={filterMode === filter.mode ? 'secondary' : 'destructive'} className="ml-0.5 h-4 px-1.5 text-[10px]">
+                  {filter.count}
+                </Badge>
+              )}
+            </Button>
+          ))}
           {rooms.length > 0 && (
             <select
               value={filterMode === 'room' ? filterRoom : ''}
@@ -323,7 +328,7 @@ export default function BatchCarePage() {
                   setFilterRoom('');
                 }
               }}
-              className="h-8 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-8 rounded-lg border border-input bg-background px-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none transition-all"
             >
               <option value="">Nach Raum filtern...</option>
               {rooms.map((r) => {
@@ -338,15 +343,15 @@ export default function BatchCarePage() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={selectAll}>
-            Alle waehlen
+        <div className="flex items-center gap-1">
+          <Button size="sm" variant="ghost" onClick={selectAll} className="text-xs h-7 px-2.5">
+            Alle
           </Button>
-          <Button size="sm" variant="ghost" onClick={selectNone}>
+          <Button size="sm" variant="ghost" onClick={selectNone} className="text-xs h-7 px-2.5">
             Keine
           </Button>
           {overduePlantIds.size > 0 && (
-            <Button size="sm" variant="ghost" onClick={selectOverdue} className="text-red-600">
+            <Button size="sm" variant="ghost" onClick={selectOverdue} className="text-xs h-7 px-2.5 text-red-600 hover:text-red-700">
               Ueberfaellige
             </Button>
           )}
@@ -356,9 +361,11 @@ export default function BatchCarePage() {
       {/* Plant List */}
       {filteredPlants.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center py-12 text-center">
-            <Sparkles className="h-12 w-12 text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground">
+          <CardContent className="flex flex-col items-center py-14 text-center">
+            <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-muted-foreground/30" />
+            </div>
+            <p className="font-medium text-muted-foreground">
               {filterMode === 'overdue'
                 ? 'Keine ueberfaelligen Pflanzen fuer diese Pflege-Aktion.'
                 : 'Keine Pflanzen vorhanden.'}
@@ -366,110 +373,109 @@ export default function BatchCarePage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {plantsByRoom.map(([roomId, group]) => (
-            <Card key={roomId}>
-              <CardHeader className="py-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <DoorOpen className="h-4 w-4 text-muted-foreground" />
-                    {group.roomName}
-                    {group.apartmentName && (
-                      <span className="text-muted-foreground font-normal">
-                        — {group.apartmentName}
-                      </span>
-                    )}
-                    <Badge variant="secondary" className="ml-1">
-                      {group.plants.length}
-                    </Badge>
-                  </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-xs h-7"
-                    onClick={() => selectRoom(roomId)}
-                  >
-                    {group.plants.every((p) => selectedPlants.has(p.id))
-                      ? 'Abwaehlen'
-                      : 'Alle waehlen'}
-                  </Button>
+            <Card key={roomId} className="overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 bg-muted/30 border-b">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <DoorOpen className="h-3.5 w-3.5 text-purple-500" />
+                  </div>
+                  <span className="text-sm font-medium">{group.roomName}</span>
+                  {group.apartmentName && (
+                    <span className="text-xs text-muted-foreground">
+                      {group.apartmentName}
+                    </span>
+                  )}
+                  <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                    {group.plants.length}
+                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-1">
-                  {group.plants.map((plant) => {
-                    const isSelected = selectedPlants.has(plant.id);
-                    const reminderInfo = getReminderInfo(plant);
-                    const isOverdue = overduePlantIds.has(plant.id);
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs h-7 px-2.5"
+                  onClick={() => selectRoom(roomId)}
+                >
+                  {group.plants.every((p) => selectedPlants.has(p.id))
+                    ? 'Abwaehlen'
+                    : 'Alle'}
+                </Button>
+              </div>
+              <div className="divide-y divide-border/50">
+                {group.plants.map((plant) => {
+                  const isSelected = selectedPlants.has(plant.id);
+                  const reminderInfo = getReminderInfo(plant);
+                  const isOverdue = overduePlantIds.has(plant.id);
 
-                    return (
-                      <label
-                        key={plant.id}
-                        className={`flex items-center justify-between rounded-lg border p-3 cursor-pointer transition-all ${
-                          isSelected
-                            ? 'border-primary bg-primary/5'
-                            : isOverdue
-                              ? 'border-red-200 bg-red-50/50 dark:border-red-900/40 dark:bg-red-950/10'
-                              : 'border-transparent hover:bg-muted/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => togglePlant(plant.id)}
-                          />
-                          <div>
-                            <p className="text-sm font-medium">
-                              {plant.nickname || plant.species?.common_name || 'Unbekannt'}
+                  return (
+                    <label
+                      key={plant.id}
+                      className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-all duration-150 ${
+                        isSelected
+                          ? 'bg-primary/[0.04]'
+                          : isOverdue
+                            ? 'bg-red-50/40 dark:bg-red-950/10'
+                            : 'hover:bg-muted/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => togglePlant(plant.id)}
+                          className="data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-green-600 data-[state=checked]:to-emerald-600 data-[state=checked]:border-green-600"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {plant.nickname || plant.species?.common_name || 'Unbekannt'}
+                          </p>
+                          {plant.nickname && plant.species && (
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {plant.species.common_name}
                             </p>
-                            {plant.nickname && plant.species && (
-                              <p className="text-xs text-muted-foreground">
-                                {plant.species.common_name}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {reminderInfo && (
-                            <Badge
-                              variant={
-                                reminderInfo.status === 'overdue'
-                                  ? 'destructive'
-                                  : reminderInfo.status === 'today'
-                                    ? 'default'
-                                    : 'secondary'
-                              }
-                              className="text-xs"
-                            >
-                              {reminderInfo.label}
-                            </Badge>
                           )}
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${
-                              plant.health_status === 'thriving'
-                                ? 'border-green-300 text-green-700 dark:text-green-400'
-                                : plant.health_status === 'good'
-                                  ? 'border-emerald-300 text-emerald-700 dark:text-emerald-400'
-                                  : plant.health_status === 'fair'
-                                    ? 'border-yellow-300 text-yellow-700 dark:text-yellow-400'
-                                    : 'border-red-300 text-red-700 dark:text-red-400'
-                            }`}
-                          >
-                            {plant.health_status === 'thriving'
-                              ? 'Praechtig'
-                              : plant.health_status === 'good'
-                                ? 'Gut'
-                                : plant.health_status === 'fair'
-                                  ? 'Maessig'
-                                  : 'Schlecht'}
-                          </Badge>
                         </div>
-                      </label>
-                    );
-                  })}
-                </div>
-              </CardContent>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                        {reminderInfo && (
+                          <Badge
+                            variant={
+                              reminderInfo.status === 'overdue'
+                                ? 'destructive'
+                                : reminderInfo.status === 'today'
+                                  ? 'default'
+                                  : 'secondary'
+                            }
+                            className="text-[10px] h-5"
+                          >
+                            {reminderInfo.label}
+                          </Badge>
+                        )}
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] h-5 ${
+                            plant.health_status === 'thriving'
+                              ? 'border-green-200 text-green-700 dark:border-green-800 dark:text-green-400'
+                              : plant.health_status === 'good'
+                                ? 'border-emerald-200 text-emerald-700 dark:border-emerald-800 dark:text-emerald-400'
+                                : plant.health_status === 'fair'
+                                  ? 'border-yellow-200 text-yellow-700 dark:border-yellow-800 dark:text-yellow-400'
+                                  : 'border-red-200 text-red-700 dark:border-red-800 dark:text-red-400'
+                          }`}
+                        >
+                          {plant.health_status === 'thriving'
+                            ? 'Praechtig'
+                            : plant.health_status === 'good'
+                              ? 'Gut'
+                              : plant.health_status === 'fair'
+                                ? 'Maessig'
+                                : 'Schlecht'}
+                        </Badge>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
             </Card>
           ))}
         </div>
@@ -478,34 +484,33 @@ export default function BatchCarePage() {
       {/* Sticky Action Bar */}
       {filteredPlants.length > 0 && (
         <div className="sticky bottom-4 z-10">
-          <Card className="border-primary/20 shadow-lg">
-            <CardContent className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-full ${careTypeConfig[careType].bgColor} flex items-center justify-center`}>
-                  {(() => {
-                    const Icon = careTypeConfig[careType].icon;
-                    return <Icon className={`h-5 w-5 ${careTypeConfig[careType].color}`} />;
-                  })()}
-                </div>
-                <div>
-                  <p className="font-medium text-sm">
-                    {selectedPlants.size} {selectedPlants.size === 1 ? 'Pflanze' : 'Pflanzen'} ausgewaehlt
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Aktion: {careTypeConfig[careType].label}
-                  </p>
-                </div>
+          <div className="glass rounded-2xl border shadow-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${activeConfig.gradient} flex items-center justify-center shadow-sm`}>
+                {(() => {
+                  const Icon = activeConfig.icon;
+                  return <Icon className="h-5 w-5 text-white" />;
+                })()}
               </div>
-              <Button
-                onClick={handleBatchCare}
-                disabled={selectedPlants.size === 0}
-                className="gap-2"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                {careTypeConfig[careType].label} ({selectedPlants.size})
-              </Button>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="font-semibold text-sm">
+                  {selectedPlants.size} {selectedPlants.size === 1 ? 'Pflanze' : 'Pflanzen'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {activeConfig.label}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleBatchCare}
+              disabled={selectedPlants.size === 0}
+              size="lg"
+              className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md shadow-green-600/20 disabled:shadow-none"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              {activeConfig.label} ({selectedPlants.size})
+            </Button>
+          </div>
         </div>
       )}
     </div>
