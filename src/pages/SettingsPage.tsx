@@ -26,6 +26,17 @@ import {
   Droplets,
   Sparkles,
   Monitor,
+  Globe,
+  Dumbbell,
+  LayoutGrid,
+  Building2,
+  PiggyBank,
+  Gauge,
+  Brain,
+  FileCheck,
+  Users,
+  Languages,
+  GraduationCap,
 } from 'lucide-react';
 
 const STORAGE_KEYS = {
@@ -219,11 +230,53 @@ export default function SettingsPage() {
           </p>
           <div className="flex gap-2 mt-4">
             <Button variant="outline" size="sm" asChild>
-              <a href="https://fintutto.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.fintutto.cloud" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                Fintutto.com
+                fintutto.cloud
               </a>
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Fintutto Ecosystem */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 flex items-center justify-center">
+              <Globe className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            Fintutto Ecosystem
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-4">Entdecke weitere Apps von Fintutto</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {[
+              { name: 'Portal', href: 'https://portal.fintutto.cloud', icon: LayoutGrid, gradient: 'from-blue-500 to-indigo-500' },
+              { name: 'Fitness', href: 'https://fitness.fintutto.cloud', icon: Dumbbell, gradient: 'from-orange-500 to-red-500' },
+              { name: 'Vermietify', href: 'https://vermietify.fintutto.cloud', icon: Building2, gradient: 'from-purple-500 to-violet-500' },
+              { name: 'Finance Mentor', href: 'https://finance-mentor.fintutto.cloud', icon: PiggyBank, gradient: 'from-green-500 to-emerald-500' },
+              { name: 'Zaehler', href: 'https://zaehler.fintutto.cloud', icon: Gauge, gradient: 'from-cyan-500 to-blue-500' },
+              { name: 'Second Brain', href: 'https://secondbrain.fintutto.cloud', icon: Brain, gradient: 'from-pink-500 to-rose-500' },
+              { name: 'Bescheidboxer', href: 'https://app.bescheidboxer.de', icon: FileCheck, gradient: 'from-amber-500 to-orange-500' },
+              { name: 'Mieterportal', href: 'https://mieter.fintutto.de', icon: Users, gradient: 'from-teal-500 to-cyan-500' },
+              { name: 'Translator', href: 'https://translator.fintutto.cloud', icon: Languages, gradient: 'from-indigo-500 to-purple-500' },
+              { name: 'Lernen', href: 'https://lernen.fintutto.cloud', icon: GraduationCap, gradient: 'from-yellow-500 to-amber-500' },
+            ].map((app) => (
+              <a
+                key={app.name}
+                href={app.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2.5 rounded-xl border bg-card p-3 hover:shadow-md hover:border-primary/20 transition-all duration-200"
+              >
+                <div className={`h-8 w-8 rounded-lg bg-gradient-to-br ${app.gradient} flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                  <app.icon className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-sm font-medium truncate">{app.name}</span>
+              </a>
+            ))}
           </div>
         </CardContent>
       </Card>
