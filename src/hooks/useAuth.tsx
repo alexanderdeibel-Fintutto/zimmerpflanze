@@ -19,10 +19,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Timeout to prevent infinite loading if Supabase is misconfigured
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      clearTimeout(timeout);
+    }).catch(() => {
+      setIsLoading(false);
+      clearTimeout(timeout);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -31,7 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -51,6 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Lade Pflanzen-Manager...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut }}>
