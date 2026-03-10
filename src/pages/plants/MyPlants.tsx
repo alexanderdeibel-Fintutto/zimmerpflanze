@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlants } from '@/hooks/usePlantContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UserPlant } from '@/types';
 import {
@@ -13,35 +13,27 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Flower2,
   Droplets,
   Sparkles,
   Plus,
   Home,
   DoorOpen,
-  Heart,
   Leaf,
   Filter,
   ArrowUpDown,
-  CheckCircle2,
   Clock,
   MapPin,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
-import { differenceInDays, parseISO, format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { differenceInDays, parseISO } from 'date-fns';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const healthLabels: Record<string, string> = {
   thriving: 'Praechtig',
   good: 'Gut',
   fair: 'Maessig',
   poor: 'Schlecht',
-};
-
-const healthColors: Record<string, string> = {
-  thriving: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-  good: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-  fair: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-  poor: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
 };
 
 const healthBadgeVariants: Record<string, 'success' | 'warning' | 'destructive' | 'secondary'> = {
@@ -52,6 +44,7 @@ const healthBadgeVariants: Record<string, 'success' | 'warning' | 'destructive' 
 };
 
 type SortOption = 'name' | 'care-urgency' | 'health' | 'newest';
+type ViewMode = 'grid' | 'list';
 
 export default function MyPlants() {
   const navigate = useNavigate();
@@ -66,11 +59,11 @@ export default function MyPlants() {
 
   const [filterApartment, setFilterApartment] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const enrichedPlants = useMemo(() => getEnrichedPlants(), [getEnrichedPlants]);
   const overdueReminders = useMemo(() => getOverdueReminders(), [getOverdueReminders]);
 
-  // Check which plants have overdue water/fertilize
   const overdueMap = useMemo(() => {
     const map: Record<string, { water: boolean; fertilize: boolean }> = {};
     overdueReminders.forEach((r) => {
@@ -81,18 +74,15 @@ export default function MyPlants() {
     return map;
   }, [overdueReminders]);
 
-  // Filter and sort
   const filteredPlants = useMemo(() => {
     let result = [...enrichedPlants];
 
-    // Filter by apartment
     if (filterApartment !== 'all') {
       result = result.filter(
         (p) => p.room?.apartment?.id === filterApartment
       );
     }
 
-    // Sort
     switch (sortBy) {
       case 'name':
         result.sort((a, b) =>
@@ -135,7 +125,6 @@ export default function MyPlants() {
     return result;
   }, [enrichedPlants, filterApartment, sortBy, overdueMap]);
 
-  // Group plants by apartment > room
   const groupedPlants = useMemo(() => {
     const groups: Record<
       string,
@@ -175,7 +164,8 @@ export default function MyPlants() {
     return groups;
   }, [filteredPlants]);
 
-  function handleWaterNow(plantId: string) {
+  function handleWaterNow(e: React.MouseEvent, plantId: string) {
+    e.stopPropagation();
     logCareEvent({
       plant_id: plantId,
       type: 'water',
@@ -184,7 +174,8 @@ export default function MyPlants() {
     });
   }
 
-  function handleFertilizeNow(plantId: string) {
+  function handleFertilizeNow(e: React.MouseEvent, plantId: string) {
+    e.stopPropagation();
     logCareEvent({
       plant_id: plantId,
       type: 'fertilize',
@@ -271,8 +262,8 @@ export default function MyPlants() {
         </Button>
       </div>
 
-      {/* Filters & Sort */}
-      <div className="flex flex-wrap gap-3">
+      {/* Filters, Sort & View Toggle */}
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={filterApartment} onValueChange={setFilterApartment}>
@@ -304,6 +295,23 @@ export default function MyPlants() {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="ml-auto flex items-center gap-1 border rounded-md p-0.5">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+            title="Kartenansicht"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+            title="Listenansicht"
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Grouped plant display */}
@@ -329,111 +337,195 @@ export default function MyPlants() {
                 </Badge>
               </div>
 
-              {/* Plant cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pl-4">
-                {roomGroup.plants.map((plant) => {
-                  const overdue = overdueMap[plant.id];
-                  const waterDays = daysSinceWatered(plant);
-                  const speciesName =
-                    plant.species?.common_name || 'Unbekannte Art';
+              {/* Grid view */}
+              {viewMode === 'grid' && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 pl-4">
+                  {roomGroup.plants.map((plant) => {
+                    const overdue = overdueMap[plant.id];
+                    const waterDays = daysSinceWatered(plant);
+                    const speciesName =
+                      plant.species?.common_name || 'Unbekannte Art';
 
-                  return (
-                    <Card
-                      key={plant.id}
-                      className={`overflow-hidden transition-shadow hover:shadow-md ${
-                        overdue?.water
-                          ? 'border-red-200 dark:border-red-800/50'
-                          : 'border-green-100 dark:border-green-900/30'
-                      }`}
-                    >
-                      {/* Card header with plant image placeholder */}
-                      <div className="h-24 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center relative">
-                        <Flower2 className="h-10 w-10 text-green-600/30 dark:text-green-400/30" />
-                        <div className="absolute top-2 right-2">
-                          <Badge
-                            variant={healthBadgeVariants[plant.health_status]}
-                            className="text-[10px]"
-                          >
-                            {healthLabels[plant.health_status]}
-                          </Badge>
-                        </div>
-                        {overdue?.water && (
-                          <div className="absolute top-2 left-2">
-                            <Badge variant="destructive" className="text-[10px]">
-                              Giessen faellig!
+                    return (
+                      <Card
+                        key={plant.id}
+                        className={`overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${
+                          overdue?.water
+                            ? 'border-red-200 dark:border-red-800/50 ring-1 ring-red-200 dark:ring-red-800/30'
+                            : ''
+                        }`}
+                        onClick={() => navigate(`/plants/${plant.id}`)}
+                      >
+                        {/* Plant image */}
+                        <div className="relative">
+                          <PlantImage
+                            botanicalName={plant.species?.botanical_name || ''}
+                            family={plant.species?.family}
+                            size="sm"
+                          />
+                          <div className="absolute top-1.5 right-1.5">
+                            <Badge
+                              variant={healthBadgeVariants[plant.health_status]}
+                              className="text-[9px] px-1.5 py-0"
+                            >
+                              {healthLabels[plant.health_status]}
                             </Badge>
                           </div>
-                        )}
-                      </div>
+                          {overdue?.water && (
+                            <div className="absolute top-1.5 left-1.5">
+                              <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
+                                <Droplets className="h-2.5 w-2.5 mr-0.5" />
+                                Faellig
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
 
-                      <CardContent className="p-4 space-y-3">
+                        <CardContent className="p-3 space-y-2">
+                          <div className="min-h-[2.5rem]">
+                            <h4 className="font-semibold text-sm leading-tight truncate">
+                              {plant.nickname || speciesName}
+                            </h4>
+                            {plant.nickname && (
+                              <p className="text-[11px] text-muted-foreground italic truncate">
+                                {speciesName}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                            {waterDays !== null ? (
+                              <span className="flex items-center gap-0.5">
+                                <Droplets className="h-3 w-3 text-blue-400" />
+                                {waterDays}d
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-0.5">
+                                <Clock className="h-3 w-3" />
+                                Neu
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Compact action buttons */}
+                          <div className="flex gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={overdue?.water ? 'default' : 'outline'}
+                              className={`flex-1 h-7 text-xs ${
+                                overdue?.water
+                                  ? 'bg-blue-600 hover:bg-blue-700'
+                                  : ''
+                              }`}
+                              onClick={(e) => handleWaterNow(e, plant.id)}
+                            >
+                              <Droplets className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={overdue?.fertilize ? 'default' : 'outline'}
+                              className={`flex-1 h-7 text-xs ${
+                                overdue?.fertilize
+                                  ? 'bg-green-600 hover:bg-green-700'
+                                  : ''
+                              }`}
+                              onClick={(e) => handleFertilizeNow(e, plant.id)}
+                            >
+                              <Sparkles className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* List view */}
+              {viewMode === 'list' && (
+                <div className="space-y-1.5 pl-4">
+                  {roomGroup.plants.map((plant) => {
+                    const overdue = overdueMap[plant.id];
+                    const waterDays = daysSinceWatered(plant);
+                    const speciesName =
+                      plant.species?.common_name || 'Unbekannte Art';
+
+                    return (
+                      <div
+                        key={plant.id}
+                        className={`flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${
+                          overdue?.water
+                            ? 'border-red-200 dark:border-red-800/50 bg-red-50/50 dark:bg-red-950/20'
+                            : 'border-border'
+                        }`}
+                        onClick={() => navigate(`/plants/${plant.id}`)}
+                      >
+                        {/* Thumbnail */}
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                          <PlantImage
+                            botanicalName={plant.species?.botanical_name || ''}
+                            family={plant.species?.family}
+                            size="sm"
+                            className="!h-10"
+                          />
+                        </div>
+
                         {/* Name */}
-                        <div>
-                          <h4 className="font-semibold leading-tight">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">
                             {plant.nickname || speciesName}
                           </h4>
                           {plant.nickname && (
-                            <p className="text-xs text-muted-foreground italic">
+                            <p className="text-[11px] text-muted-foreground italic truncate">
                               {speciesName}
                             </p>
                           )}
                         </div>
 
-                        {/* Info row */}
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {plant.room?.name || 'Unbekannt'}
-                          </span>
+                        {/* Status info */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           {waterDays !== null && (
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Droplets className="h-3 w-3 text-blue-400" />
-                              Vor {waterDays}{' '}
-                              {waterDays === 1 ? 'Tag' : 'Tagen'} gegossen
+                              {waterDays}d
                             </span>
                           )}
-                          {waterDays === null && (
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              Noch nicht gegossen
-                            </span>
-                          )}
+                          <Badge
+                            variant={healthBadgeVariants[plant.health_status]}
+                            className="text-[9px] px-1.5 py-0"
+                          >
+                            {healthLabels[plant.health_status]}
+                          </Badge>
                         </div>
 
-                        {/* Quick actions */}
-                        <div className="flex gap-2">
+                        {/* Actions */}
+                        <div className="flex gap-1 flex-shrink-0">
                           <Button
                             size="sm"
                             variant={overdue?.water ? 'default' : 'outline'}
-                            className={
-                              overdue?.water
-                                ? 'bg-blue-600 hover:bg-blue-700 flex-1'
-                                : 'flex-1'
-                            }
-                            onClick={() => handleWaterNow(plant.id)}
+                            className={`h-7 w-7 p-0 ${
+                              overdue?.water ? 'bg-blue-600 hover:bg-blue-700' : ''
+                            }`}
+                            onClick={(e) => handleWaterNow(e, plant.id)}
                           >
-                            <Droplets className="mr-1 h-3.5 w-3.5" />
-                            Giessen
+                            <Droplets className="h-3.5 w-3.5" />
                           </Button>
                           <Button
                             size="sm"
                             variant={overdue?.fertilize ? 'default' : 'outline'}
-                            className={
-                              overdue?.fertilize
-                                ? 'bg-green-600 hover:bg-green-700 flex-1'
-                                : 'flex-1'
-                            }
-                            onClick={() => handleFertilizeNow(plant.id)}
+                            className={`h-7 w-7 p-0 ${
+                              overdue?.fertilize ? 'bg-green-600 hover:bg-green-700' : ''
+                            }`}
+                            onClick={(e) => handleFertilizeNow(e, plant.id)}
                           >
-                            <Sparkles className="mr-1 h-3.5 w-3.5" />
-                            Duengen
+                            <Sparkles className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
         </div>
