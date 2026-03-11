@@ -6,6 +6,11 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { PlantProvider } from '@/hooks/usePlantContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 
+// Landing Pages
+import LandingPage from '@/pages/landing/LandingPage';
+import ImpressumPage from '@/pages/landing/ImpressumPage';
+import DatenschutzPage from '@/pages/landing/DatenschutzPage';
+
 // Auth Pages
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
@@ -38,6 +43,11 @@ function App() {
             <Toaster />
             <BrowserRouter>
               <Routes>
+                {/* Landing Pages */}
+                <Route path="/landing" element={<LandingPage />} />
+                <Route path="/impressum" element={<ImpressumPage />} />
+                <Route path="/datenschutz" element={<DatenschutzPage />} />
+
                 {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
