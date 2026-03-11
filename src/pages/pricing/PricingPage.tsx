@@ -90,7 +90,7 @@ export default function PricingPage() {
             </ul>
             <Button
               className="w-full mt-6 bg-green-600 hover:bg-green-700"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
             >
               Jetzt starten
             </Button>

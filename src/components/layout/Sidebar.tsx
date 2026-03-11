@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -30,7 +30,7 @@ interface NavSection {
 const navSections: NavSection[] = [
   {
     items: [
-      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     ],
   },
   {
@@ -64,6 +64,12 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/landing');
+  };
 
   return (
     <>
@@ -147,7 +153,7 @@ export function Sidebar() {
                         collapsed && 'lg:justify-center lg:px-2'
                       )
                     }
-                    end={item.to === '/'}
+                    end={item.to === '/dashboard'}
                   >
                     <item.icon className={cn(
                       'h-[18px] w-[18px] flex-shrink-0 transition-transform duration-150',
@@ -180,7 +186,7 @@ export function Sidebar() {
           </NavLink>
           {user && (
             <button
-              onClick={signOut}
+              onClick={handleSignOut}
               className={cn(
                 'w-full group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-sidebar-foreground/80 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-all duration-150',
                 collapsed && 'lg:justify-center lg:px-2'

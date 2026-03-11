@@ -1,10 +1,42 @@
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from '@/hooks/useAuth';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { PlantProvider } from '@/hooks/usePlantContext';
 import { AppLayout } from '@/components/layout/AppLayout';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Laden...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/landing" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function RootRedirect() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Laden...</div>
+      </div>
+    );
+  }
+
+  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/landing" replace />;
+}
 
 // Landing Pages
 import LandingPage from '@/pages/landing/LandingPage';
@@ -43,7 +75,10 @@ function App() {
             <Toaster />
             <BrowserRouter>
               <Routes>
-                {/* Landing Pages */}
+                {/* Root redirect based on auth state */}
+                <Route path="/" element={<RootRedirect />} />
+
+                {/* Landing Pages (public) */}
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/impressum" element={<ImpressumPage />} />
                 <Route path="/datenschutz" element={<DatenschutzPage />} />
@@ -52,9 +87,9 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
-                {/* App Routes with Layout */}
-                <Route element={<AppLayout />}>
-                  <Route path="/" element={<Dashboard />} />
+                {/* App Routes with Layout (protected) */}
+                <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/plants" element={<MyPlants />} />
                   <Route path="/plants/:plantId" element={<PlantDetail />} />
                   <Route path="/catalog" element={<PlantCatalog />} />

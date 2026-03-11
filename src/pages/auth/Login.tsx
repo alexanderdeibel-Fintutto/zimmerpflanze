@@ -24,7 +24,7 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate('/');
+      navigate('/dashboard');
     }
     setLoading(false);
   };
@@ -89,7 +89,7 @@ export default function Login() {
             </Link>
           </div>
           <div className="mt-3 text-center">
-            <Link to="/" className="text-xs text-muted-foreground hover:underline">
+            <Link to="/dashboard" className="text-xs text-muted-foreground hover:underline">
               Ohne Anmeldung fortfahren (lokal)
             </Link>
           </div>
