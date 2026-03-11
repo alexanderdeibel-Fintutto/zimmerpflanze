@@ -21,8 +21,10 @@ import {
   ArrowRight,
   Camera,
   BarChart3,
+  ListChecks,
 } from 'lucide-react';
 import { differenceInDays, parseISO } from 'date-fns';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -269,8 +271,16 @@ export default function Dashboard() {
                       className="flex items-center justify-between p-3 rounded-xl bg-red-50/80 dark:bg-red-950/15 border border-red-200/60 dark:border-red-800/30 transition-all hover:shadow-sm"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 relative">
+                          <PlantImage
+                            botanicalName={plant?.species?.botanical_name || ''}
+                            family={plant?.species?.family}
+                            size="sm"
+                            className="!h-9"
+                          />
+                          <div className="absolute bottom-0 right-0 h-4 w-4 rounded-tl-md bg-red-100 dark:bg-red-900/80 flex items-center justify-center">
+                            <Icon className="h-2.5 w-2.5 text-red-600 dark:text-red-400" />
+                          </div>
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate">
@@ -307,8 +317,16 @@ export default function Dashboard() {
                         className="flex items-center justify-between p-3 rounded-xl bg-green-50/80 dark:bg-green-950/15 border border-green-200/60 dark:border-green-800/30 transition-all hover:shadow-sm"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 relative">
+                            <PlantImage
+                              botanicalName={plant?.species?.botanical_name || ''}
+                              family={plant?.species?.family}
+                              size="sm"
+                              className="!h-9"
+                            />
+                            <div className="absolute bottom-0 right-0 h-4 w-4 rounded-tl-md bg-green-100 dark:bg-green-900/80 flex items-center justify-center">
+                              <Icon className="h-2.5 w-2.5 text-green-600 dark:text-green-400" />
+                            </div>
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate">

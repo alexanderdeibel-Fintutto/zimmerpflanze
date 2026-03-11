@@ -45,6 +45,7 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { UserPlant, CareEvent } from '@/types';
 import { toast } from 'sonner';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const healthStatusConfig: Record<
   string,
@@ -209,17 +210,14 @@ export default function PlantDetail() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="flex items-start gap-4">
-              {plant.image_url ? (
-                <img
-                  src={plant.image_url}
-                  alt={plant.nickname}
-                  className="w-20 h-20 rounded-xl object-cover"
+              <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                <PlantImage
+                  botanicalName={speciesData?.botanical_name || ''}
+                  family={speciesData?.family}
+                  size="sm"
+                  className="!h-20"
                 />
-              ) : (
-                <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-primary/10 text-primary">
-                  <Leaf className="h-10 w-10" />
-                </div>
-              )}
+              </div>
               <div>
                 <h1 className="text-2xl font-bold">{plant.nickname}</h1>
                 {speciesData && (

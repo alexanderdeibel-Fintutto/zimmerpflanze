@@ -27,8 +27,44 @@ const FAMILY_ICONS: Record<string, typeof Leaf> = {
 
 const DEFAULT_GRADIENT = 'from-green-200 via-emerald-100 to-teal-200 dark:from-green-900/50 dark:via-emerald-900/40 dark:to-teal-900/50';
 
-// Cache for fetched Wikipedia image URLs
-const imageCache = new Map<string, string | null>();
+// Persistent localStorage cache for Wikipedia image URLs
+const CACHE_KEY = 'pm_plant_images';
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+interface CacheEntry {
+  url: string | null;
+  ts: number;
+}
+
+function loadPersistedCache(): Map<string, string | null> {
+  const map = new Map<string, string | null>();
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const entries: Record<string, CacheEntry> = JSON.parse(raw);
+      const now = Date.now();
+      for (const [key, entry] of Object.entries(entries)) {
+        if (now - entry.ts < CACHE_TTL_MS) {
+          map.set(key, entry.url);
+        }
+      }
+    }
+  } catch { /* ignore corrupt cache */ }
+  return map;
+}
+
+function persistCache(cache: Map<string, string | null>) {
+  try {
+    const entries: Record<string, CacheEntry> = {};
+    const now = Date.now();
+    cache.forEach((url, key) => {
+      entries[key] = { url, ts: now };
+    });
+    localStorage.setItem(CACHE_KEY, JSON.stringify(entries));
+  } catch { /* storage full, ignore */ }
+}
+
+const imageCache = loadPersistedCache();
 
 async function fetchWikipediaImage(botanicalName: string): Promise<string | null> {
   if (imageCache.has(botanicalName)) {
@@ -36,19 +72,19 @@ async function fetchWikipediaImage(botanicalName: string): Promise<string | null
   }
 
   try {
-    // Use Wikipedia API to get the page thumbnail
     const searchName = botanicalName.split(' ').slice(0, 2).join(' ');
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchName.replace(/ /g, '_'))}`;
     const response = await fetch(url);
     if (!response.ok) {
       imageCache.set(botanicalName, null);
+      persistCache(imageCache);
       return null;
     }
     const data = await response.json();
     const imageUrl = data.thumbnail?.source ?? data.originalimage?.source ?? null;
-    // Get a higher resolution version if available
     const highResUrl = imageUrl?.replace(/\/\d+px-/, '/400px-') ?? null;
     imageCache.set(botanicalName, highResUrl);
+    persistCache(imageCache);
     return highResUrl;
   } catch {
     imageCache.set(botanicalName, null);
