@@ -39,6 +39,7 @@ import { de } from 'date-fns/locale';
 import { CareReminder } from '@/types';
 import { generateICSCalendar, downloadICSFile } from '@/lib/calendar';
 import { toast } from 'sonner';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const careTypeColors: Record<string, string> = {
   water: 'bg-blue-500',
@@ -297,14 +298,20 @@ export default function CalendarPage() {
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`flex items-center justify-center w-8 h-8 rounded-full text-white ${typeColor}`}
-                      >
-                        {reminder.type === 'water' ? (
-                          <Droplets className="h-4 w-4" />
-                        ) : (
-                          <Leaf className="h-4 w-4" />
-                        )}
+                      <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 relative">
+                        <PlantImage
+                          botanicalName={plant?.species?.botanical_name || ''}
+                          family={plant?.species?.family}
+                          size="sm"
+                          className="!h-9"
+                        />
+                        <div className={`absolute bottom-0 right-0 h-4 w-4 rounded-tl-md ${typeColor} flex items-center justify-center`}>
+                          {reminder.type === 'water' ? (
+                            <Droplets className="h-2.5 w-2.5 text-white" />
+                          ) : (
+                            <Leaf className="h-2.5 w-2.5 text-white" />
+                          )}
+                        </div>
                       </div>
                       <div>
                         <p className="font-medium text-sm">

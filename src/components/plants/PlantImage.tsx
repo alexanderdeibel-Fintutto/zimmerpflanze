@@ -66,30 +66,66 @@ function persistCache(cache: Map<string, string | null>) {
 
 const imageCache = loadPersistedCache();
 
+// Throttle concurrent Wikipedia requests to avoid rate limiting
+const pendingRequests = new Map<string, Promise<string | null>>();
+let activeRequests = 0;
+const MAX_CONCURRENT = 3;
+const requestQueue: (() => void)[] = [];
+
+function processQueue() {
+  while (activeRequests < MAX_CONCURRENT && requestQueue.length > 0) {
+    const next = requestQueue.shift();
+    next?.();
+  }
+}
+
 async function fetchWikipediaImage(botanicalName: string): Promise<string | null> {
   if (imageCache.has(botanicalName)) {
     return imageCache.get(botanicalName) ?? null;
   }
 
-  try {
-    const searchName = botanicalName.split(' ').slice(0, 2).join(' ');
-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchName.replace(/ /g, '_'))}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      imageCache.set(botanicalName, null);
-      persistCache(imageCache);
-      return null;
-    }
-    const data = await response.json();
-    const imageUrl = data.thumbnail?.source ?? data.originalimage?.source ?? null;
-    const highResUrl = imageUrl?.replace(/\/\d+px-/, '/400px-') ?? null;
-    imageCache.set(botanicalName, highResUrl);
-    persistCache(imageCache);
-    return highResUrl;
-  } catch {
-    imageCache.set(botanicalName, null);
-    return null;
+  if (pendingRequests.has(botanicalName)) {
+    return pendingRequests.get(botanicalName)!;
   }
+
+  const promise = new Promise<string | null>((resolve) => {
+    const doFetch = async () => {
+      activeRequests++;
+      try {
+        const searchName = botanicalName.split(' ').slice(0, 2).join(' ');
+        const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchName.replace(/ /g, '_'))}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          imageCache.set(botanicalName, null);
+          persistCache(imageCache);
+          resolve(null);
+          return;
+        }
+        const data = await response.json();
+        const imageUrl = data.thumbnail?.source ?? data.originalimage?.source ?? null;
+        const highResUrl = imageUrl?.replace(/\/\d+px-/, '/400px-') ?? null;
+        imageCache.set(botanicalName, highResUrl);
+        persistCache(imageCache);
+        resolve(highResUrl);
+      } catch {
+        imageCache.set(botanicalName, null);
+        resolve(null);
+      } finally {
+        activeRequests--;
+        pendingRequests.delete(botanicalName);
+        processQueue();
+      }
+    };
+
+    if (activeRequests < MAX_CONCURRENT) {
+      doFetch();
+    } else {
+      requestQueue.push(doFetch);
+    }
+  });
+
+  pendingRequests.set(botanicalName, promise);
+  return promise;
 }
 
 interface PlantImageProps {

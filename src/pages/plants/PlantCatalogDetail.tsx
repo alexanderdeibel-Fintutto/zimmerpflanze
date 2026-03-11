@@ -25,9 +25,9 @@ import {
   Tag,
   Plus,
   Flower2,
-  Leaf,
   Sprout,
 } from 'lucide-react';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const difficultyLabels: Record<string, string> = {
   easy: 'Anfaenger',
@@ -139,9 +139,14 @@ export default function PlantCatalogDetail() {
 
       {/* Header section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Image placeholder */}
-        <div className={`${bgColor} rounded-xl flex items-center justify-center h-64 lg:h-full min-h-64`}>
-          <Leaf className="h-24 w-24 text-green-700/20 dark:text-green-300/20" />
+        {/* Plant image */}
+        <div className="rounded-xl overflow-hidden h-64 lg:h-full min-h-64">
+          <PlantImage
+            botanicalName={species.botanical_name}
+            family={species.family}
+            size="lg"
+            className="!h-full"
+          />
         </div>
 
         {/* Main info */}

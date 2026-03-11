@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PlantImage } from '@/components/plants/PlantImage';
 import { UserPlant, CareEvent } from '@/types';
 import { parseISO, isBefore, isToday, format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -425,6 +426,14 @@ export default function BatchCarePage() {
                           onCheckedChange={() => togglePlant(plant.id)}
                           className="data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-green-600 data-[state=checked]:to-emerald-600 data-[state=checked]:border-green-600"
                         />
+                        <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                          <PlantImage
+                            botanicalName={plant.species?.botanical_name || ''}
+                            family={plant.species?.family}
+                            size="sm"
+                            className="!h-8"
+                          />
+                        </div>
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">
                             {plant.nickname || plant.species?.common_name || 'Unbekannt'}

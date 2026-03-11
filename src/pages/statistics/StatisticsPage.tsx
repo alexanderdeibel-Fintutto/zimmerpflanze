@@ -27,6 +27,7 @@ import {
   isAfter,
 } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { PlantImage } from '@/components/plants/PlantImage';
 import {
   BarChart,
   Bar,
@@ -195,6 +196,8 @@ export default function StatisticsPage() {
     return enrichedPlants
       .map((p) => ({
         name: p.nickname || p.species?.common_name || 'Unbekannt',
+        botanicalName: p.species?.botanical_name || '',
+        family: p.species?.family || '',
         events: careEvents.filter((e) => e.plant_id === p.id).length,
       }))
       .sort((a, b) => b.events - a.events)
@@ -591,18 +594,28 @@ export default function StatisticsPage() {
                 {topCareNeedy.map((plant, i) => (
                   <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-2.5">
-                      <div
-                        className={`h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                          i === 0
-                            ? 'bg-gradient-to-br from-amber-200 to-yellow-200 text-amber-800 dark:from-amber-900/40 dark:to-yellow-900/30 dark:text-amber-300'
-                            : i === 1
-                              ? 'bg-gradient-to-br from-gray-200 to-slate-200 text-gray-700 dark:from-gray-800 dark:to-slate-800 dark:text-gray-300'
-                              : i === 2
-                                ? 'bg-gradient-to-br from-orange-200 to-amber-100 text-orange-800 dark:from-orange-900/30 dark:to-amber-900/20 dark:text-orange-300'
-                                : 'bg-muted text-muted-foreground'
-                        }`}
-                      >
-                        {i + 1}
+                      <div className="relative flex-shrink-0">
+                        <div className="w-8 h-8 rounded-lg overflow-hidden">
+                          <PlantImage
+                            botanicalName={plant.botanicalName}
+                            family={plant.family}
+                            size="sm"
+                            className="!h-8"
+                          />
+                        </div>
+                        <div
+                          className={`absolute -top-1 -left-1 h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                            i === 0
+                              ? 'bg-amber-400 text-amber-900'
+                              : i === 1
+                                ? 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200'
+                                : i === 2
+                                  ? 'bg-orange-300 text-orange-900'
+                                  : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          {i + 1}
+                        </div>
                       </div>
                       <span className="text-sm font-medium">{plant.name}</span>
                     </div>
