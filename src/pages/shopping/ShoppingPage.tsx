@@ -29,6 +29,7 @@ import {
   Store,
 } from 'lucide-react';
 import type { ShoppingItem } from '@/types';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const CATEGORY_LABELS: Record<string, string> = {
   soil: 'Erde',
@@ -416,10 +417,24 @@ export default function ShoppingPage() {
                             )}
                           </div>
                           {plantName && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                              <Leaf className="h-3 w-3" />
-                              Für: {plantName}
-                            </p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {(() => {
+                                const plant = enrichedPlants.find((p) => p.id === item.for_plant_id);
+                                return plant?.species ? (
+                                  <div className="w-4 h-4 rounded overflow-hidden flex-shrink-0">
+                                    <PlantImage
+                                      botanicalName={plant.species.botanical_name}
+                                      family={plant.species.family}
+                                      size="sm"
+                                      className="!h-4"
+                                    />
+                                  </div>
+                                ) : (
+                                  <Leaf className="h-3 w-3 text-muted-foreground" />
+                                );
+                              })()}
+                              <span className="text-xs text-muted-foreground">Für: {plantName}</span>
+                            </div>
                           )}
                         </div>
 

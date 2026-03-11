@@ -20,6 +20,7 @@ import { format, parseISO, isToday, isBefore, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { CareReminder } from '@/types';
 import { toast } from 'sonner';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const careTypeConfig: Record<string, { label: string; icon: typeof Droplets; color: string }> = {
   water: { label: 'Giessen', icon: Droplets, color: 'text-blue-500' },
@@ -60,10 +61,16 @@ function ReminderCard({
       className={`flex items-center justify-between rounded-lg border border-l-4 ${borderColor} ${bgColor} p-4 transition-all hover:shadow-sm`}
     >
       <div className="flex items-center gap-3">
-        <div
-          className={`flex items-center justify-center w-10 h-10 rounded-full bg-background shadow-sm ${config.color}`}
-        >
-          <Icon className="h-5 w-5" />
+        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative">
+          <PlantImage
+            botanicalName={plant?.species?.botanical_name || ''}
+            family={plant?.species?.family}
+            size="sm"
+            className="!h-10"
+          />
+          <div className={`absolute bottom-0 right-0 h-4 w-4 rounded-tl-md ${config.color === 'text-blue-500' ? 'bg-blue-500' : config.color === 'text-green-500' ? 'bg-green-500' : 'bg-amber-500'} flex items-center justify-center`}>
+            <Icon className="h-2.5 w-2.5 text-white" />
+          </div>
         </div>
         <div>
           <p className="font-medium">

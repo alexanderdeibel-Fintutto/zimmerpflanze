@@ -43,6 +43,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import type { VacationPlan, VacationTask, VacationHelper } from '@/types';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -655,12 +656,16 @@ export default function VacationPlanPage() {
                                         />
                                       </button>
 
-                                      <div
-                                        className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                                          TASK_TYPE_COLORS[task.task_type]
-                                        }`}
-                                      >
-                                        <TaskIcon className="h-4 w-4" />
+                                      <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                        <PlantImage
+                                          botanicalName={plant?.species?.botanical_name || ''}
+                                          family={plant?.species?.family}
+                                          size="sm"
+                                          className="!h-8"
+                                        />
+                                        <div className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-tl-md ${task.task_type === 'water' ? 'bg-blue-500' : task.task_type === 'fertilize' ? 'bg-green-500' : 'bg-purple-500'} flex items-center justify-center`}>
+                                          <TaskIcon className="h-2 w-2 text-white" />
+                                        </div>
                                       </div>
 
                                       <div className="flex-1 min-w-0">

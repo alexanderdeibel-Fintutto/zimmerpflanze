@@ -38,6 +38,7 @@ import {
 } from '@/lib/plant-scanner';
 import { PlantSpecies } from '@/types';
 import { toast } from 'sonner';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 type ScanStep = 'capture' | 'identifying' | 'results' | 'protocol';
 const steps: ScanStep[] = ['capture', 'identifying', 'results', 'protocol'];
@@ -504,8 +505,13 @@ export default function PlantScannerPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="relative">
-                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center">
-                            <Leaf className="h-7 w-7 text-green-600 dark:text-green-400" />
+                          <div className="w-14 h-14 rounded-xl overflow-hidden">
+                            <PlantImage
+                              botanicalName={result.species.botanical_name}
+                              family={result.species.family}
+                              size="sm"
+                              className="!h-14"
+                            />
                           </div>
                           {idx === 0 && (
                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
