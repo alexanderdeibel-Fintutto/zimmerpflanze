@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { usePlants } from '@/hooks/usePlantContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -22,6 +22,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { Apartment, Room } from '@/types';
+import { PlantImage } from '@/components/plants/PlantImage';
 
 const lightLevelLabels: Record<string, string> = {
   low: 'Wenig Licht',
@@ -50,6 +51,7 @@ export default function ApartmentsPage() {
     apartments,
     rooms,
     plants,
+    getEnrichedPlants,
     addApartment,
     updateApartment,
     deleteApartment,
@@ -59,6 +61,7 @@ export default function ApartmentsPage() {
     getRoomsForApartment,
   } = usePlants();
 
+  const enrichedPlants = useMemo(() => getEnrichedPlants(), [getEnrichedPlants]);
   const [expandedApartment, setExpandedApartment] = useState<string | null>(null);
   const [showAddApartment, setShowAddApartment] = useState(false);
   const [editingApartment, setEditingApartment] = useState<string | null>(null);
@@ -406,6 +409,8 @@ export default function ApartmentsPage() {
                       );
                     }
 
+                    const enrichedRoomPlants = enrichedPlants.filter(p => p.room_id === room.id);
+
                     return (
                       <div
                         key={room.id}
@@ -431,6 +436,25 @@ export default function ApartmentsPage() {
                                 {roomPlants.length} {roomPlants.length === 1 ? 'Pflanze' : 'Pflanzen'}
                               </span>
                             </div>
+                            {enrichedRoomPlants.length > 0 && (
+                              <div className="flex items-center -space-x-1.5 mt-1.5">
+                                {enrichedRoomPlants.slice(0, 5).map((p) => (
+                                  <div key={p.id} className="w-6 h-6 rounded-full overflow-hidden border-2 border-background flex-shrink-0">
+                                    <PlantImage
+                                      botanicalName={p.species?.botanical_name || ''}
+                                      family={p.species?.family}
+                                      size="sm"
+                                      className="!h-6"
+                                    />
+                                  </div>
+                                ))}
+                                {enrichedRoomPlants.length > 5 && (
+                                  <div className="w-6 h-6 rounded-full bg-muted border-2 border-background flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[10px] font-medium text-muted-foreground">+{enrichedRoomPlants.length - 5}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
